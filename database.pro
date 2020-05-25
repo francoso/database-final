@@ -20,16 +20,22 @@ SOURCES += \
     inside_page.cpp \
     main.cpp \
     mainwindow.cpp \
-    mysql.cpp
+    mysql.cpp \
+    searching_page.cpp \
+    staff_page.cpp
 
 HEADERS += \
     inside_page.h \
     mainwindow.h \
-    mysql.h
+    mysql.h \
+    searching_page.h \
+    staff_page.h
 
 FORMS += \
     inside_page.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    searching_page.ui \
+    staff_page.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

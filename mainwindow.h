@@ -2,6 +2,7 @@
 #include"mysql.h"
 #include <QSqlDriver>
 #include"inside_page.h"
+#include"QMessageBox"
 #define MAINWINDOW_H
 
 #include <QMainWindow>

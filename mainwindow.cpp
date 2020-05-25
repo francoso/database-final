@@ -23,16 +23,20 @@ void MainWindow::on_pushButton_clicked()
 
     //操作数据库
     Mysql *staff=new Mysql();
+    staff->db.open();
     if(staff->db.open())
     {
          QSqlQuery query(staff->db);
-         query.exec("select staff_id,password from staff");
+         query.exec("select Staff_ID,password from staff");
          while(query.next()){
-             if(query.value(0)==account_num&&query.value(1)==password){
-                 inside_page * Inside_Page = new inside_page;
-                 this->hide();
+             if(query.value(0).toInt()==account_num&&query.value(1).toString()==password){
+                 inside_page * Inside_Page = new inside_page(nullptr,account_num);
+                 this->close();
                  Inside_Page->show();
+                 return;
              }
          }
+         QMessageBox::information(nullptr,"登陆错误","请重试");
     }
+    return;
 }

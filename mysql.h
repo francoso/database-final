@@ -3,7 +3,7 @@
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
-
+#include <QDebug>
 #define MYSQL_H
 
 class Mysql
