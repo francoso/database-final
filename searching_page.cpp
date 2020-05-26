@@ -1,6 +1,9 @@
 #include "searching_page.h"
 #include "ui_searching_page.h"
+#include<QMessageBox>
 #include <QDebug>
+#include"inside_page.h"
+#include"ui_inside_page.h"
 
 searching_page::searching_page(QWidget *parent) :
     QMainWindow(parent),
@@ -120,26 +123,28 @@ void searching_page::on_Client_list_itemSelectionChanged()
     {
         query.prepare("select order_client_ID from order_client"
                    " where order_client_ID="+search);
+        query.exec();query.first();
         while(index!=ui->Client_list->currentIndex().row())
         {
             query.next();
             index++;
         }
-        current_Client_ID=index;
+        current_Client_ID=query.value(0).toInt();
     }
     else if(ui->comboBox_1->currentIndex()==2)
     {
         query.prepare("select order_client_ID,client_name from order_client natural join client where client_name like '"
                       +ui->search_edit->text()+
                       "%'");
+        query.exec();query.first();
         while(index!=ui->Client_list->currentIndex().row())
         {
             query.next();
             index++;
         }
-        current_Client_ID=index;
+        current_Client_ID=query.value(0).toInt();
     }
-    qDebug()<<current_Client_ID;
+    qDebug()<<"index="<<current_Client_ID;
 
     query.exec("select order_client_id,staff_name,client_name,shipment_name,product_ID,type,"
                "product_number,departure,destination,date,ways "
@@ -157,4 +162,43 @@ void searching_page::on_Client_list_itemSelectionChanged()
     ui->destination_edit->setText(query.value(8).toString());
     ui->finish_date_edit->setText(query.value(9).toString());
     ui->way_edit->setText(query.value(10).toString());
+}
+
+void searching_page::on_pushButton_4_clicked()
+{
+    Mysql* list_1=new Mysql();
+    list_1->db.open();
+    QSqlQuery query(list_1->db);
+
+    query.exec("select order_client_id "
+               "from order_client "
+               "where order_client_ID ="+QString::number(current_Client_ID));
+    query.first();
+    int this_order_client_id = query.value(0).toInt();
+
+    query.prepare("CALL update_order_client(?,?,?,?,?,?,?,?,?,?,?)");
+    query.addBindValue(QString::number(this_order_client_id));
+    query.addBindValue(ui->client_name_edit->text());
+    query.addBindValue(ui->staff_name_edit->text());
+    query.addBindValue(ui->shipment_name_edit->text());
+    query.addBindValue(ui->product_ID_edit->text());
+    query.addBindValue(ui->product_type_edit->text());
+    query.addBindValue(ui->product_number_edit->text());
+    query.addBindValue(ui->departure_edit->text());
+    query.addBindValue(ui->destination_edit->text());
+    query.addBindValue(ui->finish_date_edit->text());
+    query.addBindValue(ui->way_edit->text());
+
+
+    if(query.exec())
+        QMessageBox::information(nullptr,"成功","信息已录入");
+    else
+        QMessageBox::information(nullptr,"失败","请检查是否有输入错误");
+}
+
+void searching_page::on_pushButton_5_clicked()
+{
+    inside_page * Inside_Page = new inside_page;
+    this->close();
+    Inside_Page->show();
 }

@@ -26,6 +26,8 @@ private slots:
 
     void on_Client_list_itemSelectionChanged();
 
+    void on_pushButton_4_clicked();
+
 private:
     Ui::searching_page *ui;
 };
