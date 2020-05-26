@@ -4,6 +4,8 @@
 #include <QDebug>
 #include"inside_page.h"
 #include"ui_inside_page.h"
+#include"detail.h"
+#include"ui_detail.h"
 
 searching_page::searching_page(QWidget *parent) :
     QMainWindow(parent),
@@ -11,7 +13,8 @@ searching_page::searching_page(QWidget *parent) :
 {
     ui->setupUi(this);
     //初始化右边页面
-    current_Client_ID=-1;
+    current_order_ID=-1;
+    current_client_ID=-1;
 
     //初始化列表
     Mysql* list_1=new Mysql();
@@ -117,7 +120,7 @@ void searching_page::on_Client_list_itemSelectionChanged()
             query.next();
             index++;
         }
-        current_Client_ID=index;
+        current_order_ID=index;
     }
     else if(ui->comboBox_1->currentIndex()==1)
     {
@@ -129,7 +132,7 @@ void searching_page::on_Client_list_itemSelectionChanged()
             query.next();
             index++;
         }
-        current_Client_ID=query.value(0).toInt();
+        current_order_ID=query.value(0).toInt();
     }
     else if(ui->comboBox_1->currentIndex()==2)
     {
@@ -142,14 +145,14 @@ void searching_page::on_Client_list_itemSelectionChanged()
             query.next();
             index++;
         }
-        current_Client_ID=query.value(0).toInt();
+        current_order_ID=query.value(0).toInt();
     }
-    qDebug()<<"index="<<current_Client_ID;
+    qDebug()<<"index="<<current_order_ID;
 
     query.exec("select order_client_id,staff_name,client_name,shipment_name,product_ID,type,"
-               "product_number,departure,destination,date,ways "
+               "product_number,departure,destination,date,ways,client_ID,shipment_ID "
                "from order_client natural join shipment natural join staff natural join client "
-               "where order_client_ID ="+QString::number(current_Client_ID));
+               "where order_client_ID ="+QString::number(current_order_ID));
     query.first();
     ui->order_client_ID_edit->setText(query.value(0).toString());
     ui->staff_name_edit->setText(query.value(1).toString());
@@ -162,6 +165,9 @@ void searching_page::on_Client_list_itemSelectionChanged()
     ui->destination_edit->setText(query.value(8).toString());
     ui->finish_date_edit->setText(query.value(9).toString());
     ui->way_edit->setText(query.value(10).toString());
+
+    current_client_ID=query.value(11).toInt();
+    current_shipment_ID=query.value(12).toInt();
 }
 
 void searching_page::on_pushButton_4_clicked()
@@ -172,7 +178,7 @@ void searching_page::on_pushButton_4_clicked()
 
     query.exec("select order_client_id "
                "from order_client "
-               "where order_client_ID ="+QString::number(current_Client_ID));
+               "where order_client_ID ="+QString::number(current_order_ID));
     query.first();
     int this_order_client_id = query.value(0).toInt();
 
@@ -190,8 +196,15 @@ void searching_page::on_pushButton_4_clicked()
     query.addBindValue(ui->way_edit->text());
 
 
-    if(query.exec())
+    if(query.exec()){
         QMessageBox::information(nullptr,"成功","信息已录入");
+        query.exec("select client_id from order_client where order_client_ID="+QString::number(current_order_ID));
+        query.first();
+        current_client_ID=query.value(0).toInt();
+        query.exec("select shipment_id from order_client where order_client_ID="+QString::number(current_order_ID));
+        query.first();
+        current_client_ID=query.value(0).toInt();
+    }
     else
         QMessageBox::information(nullptr,"失败","请检查是否有输入错误");
 }
@@ -201,4 +214,16 @@ void searching_page::on_pushButton_5_clicked()
     inside_page * Inside_Page = new inside_page;
     this->close();
     Inside_Page->show();
+}
+
+void searching_page::on_pushButton_3_clicked()
+{
+   detail *Detail=new detail(nullptr,0,current_client_ID);
+   Detail->show();
+}
+
+void searching_page::on_pushButton_2_clicked()
+{
+   detail *Detail=new detail(nullptr,1,current_shipment_ID);
+   Detail->show();
 }

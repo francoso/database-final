@@ -12,7 +12,9 @@ class searching_page;
 class searching_page : public QMainWindow
 {
     int id;
-    int current_Client_ID;
+    int current_order_ID;
+    int current_client_ID;
+    int current_shipment_ID;
     Q_OBJECT
 
 public:
@@ -27,6 +29,12 @@ private slots:
     void on_Client_list_itemSelectionChanged();
 
     void on_pushButton_4_clicked();
+
+    void on_pushButton_5_clicked();
+
+    void on_pushButton_3_clicked();
+
+    void on_pushButton_2_clicked();
 
 private:
     Ui::searching_page *ui;

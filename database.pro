@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    detail.cpp \
     inside_page.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
     staff_page.cpp
 
 HEADERS += \
+    detail.h \
     inside_page.h \
     mainwindow.h \
     mysql.h \
@@ -32,6 +34,7 @@ HEADERS += \
     staff_page.h
 
 FORMS += \
+    detail.ui \
     inside_page.ui \
     mainwindow.ui \
     searching_page.ui \
