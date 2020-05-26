@@ -16,6 +16,10 @@ class searching_page : public QMainWindow
     int current_client_ID;
     int current_shipment_ID;
     bool is_add;
+
+    int current_order_ID_2;
+    int current_factory_ID;
+    bool is_add_2;
     Q_OBJECT
 
 public:
@@ -38,6 +42,18 @@ private slots:
     void on_pushButton_2_clicked();
 
     void on_new_button_clicked();
+
+    void on_Facotry_enter_btn_clicked();
+
+    void on_pushButton_8_clicked();
+
+    void on_Factory_List_itemSelectionChanged();
+
+    void on_pushButton_9_clicked();
+
+    void on_pushButton_7_clicked();
+
+    void on_new_button_2_clicked();
 
 private:
     Ui::searching_page *ui;

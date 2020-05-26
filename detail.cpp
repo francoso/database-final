@@ -53,6 +53,26 @@ detail::detail(QWidget *parent,int Type,int ID) :
         ui->lineEdit_4->setText(query.value(3).toString());
         ui->lineEdit_5->hide();
     }
+
+    if(type==2)
+    {
+        ui->label->setText("工厂ID：");
+        ui->label_2->setText("工厂名称：");
+        ui->label_3->setText("联系方式：");
+        ui->label_4->setText("地址：");
+        ui->label_5->hide();
+
+        query.prepare("select * from factory where factory_id="+QString::number(id));
+        query.exec();
+        query.first();
+
+        ui->lineEdit->setText(query.value(0).toString());
+        ui->lineEdit_2->setText(query.value(1).toString());
+        ui->lineEdit_3->setText(query.value(2).toString());
+        ui->lineEdit_4->setText(query.value(3).toString());
+        ui->lineEdit_5->hide();
+
+    }
 }
 
 detail::~detail()
