@@ -15,13 +15,13 @@ searching_page::searching_page(QWidget *parent) :
     //初始化右边页面
     current_order_ID=-1;
     current_client_ID=-1;
-
+    is_add=0;
     //初始化列表
     Mysql* list_1=new Mysql();
     list_1->db.open();
     QSqlQuery query(list_1->db);
 
-    query.exec("select order_client_ID,client_name from order_client natural join client");
+    query.exec("select order_client_ID,client_name from order_client natural join client ORDER BY order_client_ID;");
     int i=0;
     while(query.next())
     {
@@ -120,7 +120,7 @@ void searching_page::on_Client_list_itemSelectionChanged()
             query.next();
             index++;
         }
-        current_order_ID=index;
+        current_order_ID=query.value(0).toInt();
     }
     else if(ui->comboBox_1->currentIndex()==1)
     {
@@ -176,44 +176,75 @@ void searching_page::on_pushButton_4_clicked()
     list_1->db.open();
     QSqlQuery query(list_1->db);
 
-    query.exec("select order_client_id "
-               "from order_client "
-               "where order_client_ID ="+QString::number(current_order_ID));
-    query.first();
-    int this_order_client_id = query.value(0).toInt();
-
-    query.prepare("CALL update_order_client(?,?,?,?,?,?,?,?,?,?,?)");
-    query.addBindValue(QString::number(this_order_client_id));
-    query.addBindValue(ui->client_name_edit->text());
-    query.addBindValue(ui->staff_name_edit->text());
-    query.addBindValue(ui->shipment_name_edit->text());
-    query.addBindValue(ui->product_ID_edit->text());
-    query.addBindValue(ui->product_type_edit->text());
-    query.addBindValue(ui->product_number_edit->text());
-    query.addBindValue(ui->departure_edit->text());
-    query.addBindValue(ui->destination_edit->text());
-    query.addBindValue(ui->finish_date_edit->text());
-    query.addBindValue(ui->way_edit->text());
-
-
-    if(query.exec()){
-        QMessageBox::information(nullptr,"成功","信息已录入");
-        query.exec("select client_id from order_client where order_client_ID="+QString::number(current_order_ID));
+    if(is_add==0){
+        query.exec("select order_client_id "
+                   "from order_client "
+                   "where order_client_ID ="+QString::number(current_order_ID));
         query.first();
-        current_client_ID=query.value(0).toInt();
-        query.exec("select shipment_id from order_client where order_client_ID="+QString::number(current_order_ID));
-        query.first();
-        current_client_ID=query.value(0).toInt();
-    }
+        int this_order_client_id = query.value(0).toInt();
+
+        query.prepare("CALL update_order_client(?,?,?,?,?,?,?,?,?,?,?)");
+        query.addBindValue(QString::number(this_order_client_id));
+        query.addBindValue(ui->client_name_edit->text());
+        query.addBindValue(ui->staff_name_edit->text());
+        query.addBindValue(ui->shipment_name_edit->text());
+        query.addBindValue(ui->product_ID_edit->text());
+        query.addBindValue(ui->product_type_edit->text());
+        query.addBindValue(ui->product_number_edit->text());
+        query.addBindValue(ui->departure_edit->text());
+        query.addBindValue(ui->destination_edit->text());
+        query.addBindValue(ui->finish_date_edit->text());
+        query.addBindValue(ui->way_edit->text());
+
+
+        if(query.exec()){
+            QMessageBox::information(nullptr,"成功","信息已录入");
+            query.exec("select client_id from order_client where order_client_ID="+QString::number(current_order_ID));
+            query.first();
+            current_client_ID=query.value(0).toInt();
+            query.exec("select shipment_id from order_client where order_client_ID="+QString::number(current_order_ID));
+            query.first();
+            current_client_ID=query.value(0).toInt();
+        }
+        else
+            QMessageBox::information(nullptr,"失败","请检查是否有输入错误");
+        }
     else
-        QMessageBox::information(nullptr,"失败","请检查是否有输入错误");
+    {
+
+        query.prepare("CALL insert_order_client(?,?,?,?,?,?,?,?,?,?,?)");
+        query.addBindValue(QString::number(current_order_ID));
+        query.addBindValue(ui->client_name_edit->text());
+        query.addBindValue(ui->staff_name_edit->text());
+        query.addBindValue(ui->shipment_name_edit->text());
+        query.addBindValue(ui->product_ID_edit->text());
+        query.addBindValue(ui->product_type_edit->text());
+        query.addBindValue(ui->product_number_edit->text());
+        query.addBindValue(ui->departure_edit->text());
+        query.addBindValue(ui->destination_edit->text());
+        query.addBindValue(ui->finish_date_edit->text());
+        query.addBindValue(ui->way_edit->text());
+
+        if(query.exec())
+            qDebug()<<"insert yes";
+        else
+            qDebug()<<"insert no";
+    }
 }
 
 void searching_page::on_pushButton_5_clicked()
 {
-    inside_page * Inside_Page = new inside_page;
-    this->close();
-    Inside_Page->show();
+    if(is_add==0){
+        inside_page * Inside_Page = new inside_page;
+        this->close();
+        Inside_Page->show();
+    }
+    else
+    {
+        searching_page * SP=new searching_page;
+        this->close();
+        SP->show();
+    }
 }
 
 void searching_page::on_pushButton_3_clicked()
@@ -226,4 +257,41 @@ void searching_page::on_pushButton_2_clicked()
 {
    detail *Detail=new detail(nullptr,1,current_shipment_ID);
    Detail->show();
+}
+
+//新增，先清除页面
+void searching_page::on_new_button_clicked()
+{
+    is_add=1;
+    //开启数据库
+    Mysql* list_1=new Mysql();
+    list_1->db.open();
+    QSqlQuery query(list_1->db);
+
+    //获取下个订单自增id，并清空右边
+    query.prepare("SELECT Auto_increment FROM information_schema.`TABLES` WHERE Table_Schema = 'foreign_trade_company' AND table_name = 'order_client' LIMIT 1;");
+    if(query.exec())
+        qDebug()<<"increment";
+    query.first();
+    int next_order_id=query.value(0).toInt();
+    current_order_ID=next_order_id;
+    ui->order_client_ID_edit->setText(QString::number(next_order_id));
+    ui->staff_name_edit->clear();
+    ui->client_name_edit->clear();
+    ui->shipment_name_edit->clear();
+    ui->product_ID_edit->clear();
+    ui->product_type_edit->clear();
+    ui->product_number_edit->clear();
+    ui->departure_edit->clear();
+    ui->destination_edit->clear();
+    ui->finish_date_edit->clear();
+    ui->way_edit->clear();
+
+    ui->Client_list->clearSelection();
+
+    ui->pushButton_2->setDisabled(1);
+    ui->pushButton_3->setDisabled(1);
+
+    ui->pushButton_4->setText("新增");
+    ui->pushButton_5->setText("取消");
 }
