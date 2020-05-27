@@ -710,7 +710,7 @@ void searching_page::on_p3_change_btn_clicked()
             }
             else
             {
-                QMessageBox::information(nullptr,"失败","数据无法提交");
+                QMessageBox::information(nullptr,"失败","部分提交成功");
             }
             query.exec("COMMIT");
         }
