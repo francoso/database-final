@@ -76,6 +76,8 @@ private slots:
 
     void on_p3_check_btn_clicked();
 
+    void on_p3_cancel_button_clicked();
+
 private:
     Ui::searching_page *ui;
 };

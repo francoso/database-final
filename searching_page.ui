@@ -993,6 +993,19 @@
        <string>查看工厂</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="p3_cancel_button">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>20</y>
+        <width>80</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>删除当前产品</string>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>

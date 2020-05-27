@@ -240,7 +240,7 @@ void searching_page::on_pushButton_4_clicked()
             current_client_ID=query.value(0).toInt();
         }
         else
-            QMessageBox::information(nullptr,"失败","请检查是否有输入错误");
+            QMessageBox::information(nullptr,"失败","请检查是否有输入错误，或库存是否不足");
         }
     else
     {
@@ -710,7 +710,7 @@ void searching_page::on_p3_change_btn_clicked()
             }
             else
             {
-                QMessageBox::information(nullptr,"失败","数据无法提交");
+                QMessageBox::information(nullptr,"失败","部分提交成功");
             }
             query.exec("COMMIT");
         }
@@ -775,4 +775,42 @@ void searching_page::on_p3_check_btn_clicked()
 {
     detail *Detail=new detail(nullptr,2,current_factory_ID_2);
     Detail->show();
+}
+
+void searching_page::on_p3_cancel_button_clicked()
+{
+    if(current_product_ID==-1)
+        return;
+    else
+    {
+        Mysql* list_1=new Mysql();
+        list_1->db.open();
+        QSqlQuery query(list_1->db);
+
+        {
+            query.exec("start transaction");
+            bool b1=query.exec("delete from product where product_id="+QString::number(current_product_ID)+" AND type='"+current_type+"'");
+            bool b2=query.exec("delete from order_client where product_id="+QString::number(current_product_ID)+" AND type='"+current_type+"'");
+            bool b3=query.exec("delete from order_factory where product_id="+QString::number(current_product_ID)+" AND type='"+current_type+"'");
+            qDebug()<<b1<<b2<<b3<<current_product_ID<<current_type;
+            if(b1&&b2&&b3)
+            {
+                if(QMessageBox::warning(nullptr,"删除","确定删除吗？",QMessageBox::Yes|QMessageBox::No)==QMessageBox::Yes)
+                {
+                    query.exec("COMMIT");
+                    QMessageBox::information(nullptr,"删除","删除成功");
+                }
+                else
+                {
+                    query.exec("ROLLBACK");
+                    QMessageBox::information(nullptr,"删除","删除取消");
+                }
+            }
+            else
+            {
+                QMessageBox::information(nullptr,"删除","操作失败");
+                query.exec("ROLLBACK");
+            }
+        }
+    }
 }
